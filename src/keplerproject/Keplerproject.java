@@ -58,6 +58,7 @@ DecimalFormat df;
     int c = 0;
 
     float pp;
+    
 
     int x = 350, y = 200, coord_sunX, coord_sunY;
     float coord_earthX = (200 + x), coord_earthY = (200 + y / 2);
