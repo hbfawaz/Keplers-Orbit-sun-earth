@@ -162,7 +162,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         earth_sun_label = new Label("Earth-sun: " + (int) R);
         period_label = new Label("Period: " + T);
-        earth_speed_label = new Label("speed:" + df.format(speed));
+        earth_speed_label = new Label("speed: " + df.format(speed));
 
         p_left.add(start_quit_btn);
         p_left.add(pause_resume_btn);
@@ -477,7 +477,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
                 infinitesimal_earth_earth_distance = (float) Math.sqrt(((earthX - previousEarthX) * (earthX - previousEarthX)) + ((earthY - previousEarthY) * (earthY - previousEarthY)));
                 speed = (float) Math.sqrt(GMm / distance);
-                earth_speed_label.setText("Earth speed:" + df.format(speed));
+                earth_speed_label.setText("Earth speed: " + df.format(speed));
 
                 /*Le zebde*/
                 sleeptime = (int) (infinitesimal_earth_earth_distance / speed) * sleeptime_factor; // for better results
