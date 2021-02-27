@@ -188,6 +188,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
     }
 
+    /* Graphics */
     public void paint(Graphics g) {
 
         g.drawImage(bg_img, 0, 0, this);
@@ -247,7 +248,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         }
 
     }
-
+     /* Reset */
     public void reset() {
         major = 350;
         minor = 200;
