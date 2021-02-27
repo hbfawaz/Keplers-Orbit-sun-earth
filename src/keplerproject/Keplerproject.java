@@ -37,7 +37,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
     Button start_quit_btn, pause_resume_btn, reset_btn;
 
     Button maj_up_btn, maj_down_btn, min_up_btn, min_down_btn;
-    Button sleepUp_btn , sleepDown_btn;
+    Button sleepUp_btn, sleepDown_btn;
 
     /*Labels */
     Label sleep_label;
@@ -89,7 +89,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         handle_resume_pause_counter = 0;
         theta = 0;
-        sleeptime_factor=50;
+        sleeptime_factor = 50;
         major = 350;
         minor = 200;
         earthX = 200 + major;
@@ -109,19 +109,16 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         df = new DecimalFormat("###.##");
 
-        bg_img = getImage(getDocumentBase(), "https://i.imgur.com/sluwuxP.jpg");
+        bg_img = getImage(getDocumentBase(), "https://i.imgur.com/zi7bfOp.jpg");
         earth_img = getImage(getDocumentBase(), "https://i.imgur.com/mQht2Su.jpg");
         sun_img = getImage(getDocumentBase(), "https://i.imgur.com/oKXanq1.png");
-        temperature_img = getImage(getDocumentBase(), "https://i.imgur.com/aGZHgpt.jpg");
-        credits_img = getImage(getDocumentBase(), "https://i.imgur.com/AlEPHbi.jpg");
-        title_img = getImage(getDocumentBase(), "https://text2image.com/user_images/202102/text2image_Z2884020_20210225_210701.png");
 
         p_left = new Panel();
         p_center = new Panel();
         p_right = new Panel();
 
         flow_of_grids = new FlowLayout();
-        gr_left = new GridLayout(3,1);
+        gr_left = new GridLayout(3, 1);
         gr_center = new GridLayout(3, 3);
         gr_right = new GridLayout(3, 3);
 
@@ -149,9 +146,8 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         sleepUp_btn.addActionListener((ActionListener) this);
         sleepDown_btn = new Button(" -sleep");
         sleepDown_btn.addActionListener((ActionListener) this);
-        
-                
-        sleep_label = new Label("     "+ sleeptime_factor);
+
+        sleep_label = new Label("     " + sleeptime_factor);
 
         empty_label1 = new Label("       ");
         empty_label2 = new Label("       ");
@@ -181,7 +177,6 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         p_center.add(sleepDown_btn);
         p_center.add(sleep_label);
         p_center.add(sleepUp_btn);
-        
 
         p_right.add(earth_x_label);
         p_right.add(sun_x_label);
@@ -218,17 +213,13 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         centerX = (Ax + Bx) / 2;
         centerY = (Ay + By) / 2;
-       // System.out.println("center (" + centerX + "," + centerY + ")");
+        // System.out.println("center (" + centerX + "," + centerY + ")");
 
         sunX = 200 + ((minor * minor) / (2 * major));
         sunY = (200 + minor / 2);
 
         g.drawImage(earth_img, (int) earthX - 15, (int) earthY - 15, this);
         g.drawImage(sun_img, sunX - 25, sunY - 25, this);
-
-        g.drawImage(temperature_img, 0, 500, this);
-        g.drawImage(credits_img, 680, 537, this);
-        g.drawImage(title_img, 300, 70, this);
 
         if (distance > 23 && distance < 72.5) {
             g.setColor(Color.BLUE);
@@ -279,11 +270,11 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         sunY = (200 + minor / 2);
         sun_x_label.setText("Sun's X:  " + sunX);
         sun_y_label.setText("Sun's Y:  " + sunY);
-        
-        sleeptime_factor=50;
-        
-            sleep_label.setText("     "+sleeptime_factor);
-            
+
+        sleeptime_factor = 50;
+
+        sleep_label.setText("     " + sleeptime_factor);
+
     }
 
     @Override
@@ -324,8 +315,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         }
 
         /**
-         * *************Buttons actions with their cases***************
-         */
+         * *************Buttons actions with their cases****************/
         if (e.getSource() == maj_up_btn) {
 
             if (sunX < Ax || sunX > centerX) {
@@ -372,7 +362,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
                 semi_major_pow2 = (major / 2) * (major / 2);
                 semi_minor_pow2 = (minor / 2) * (minor / 2);
                 float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-               // System.out.println("new e ee: " + new_eccentricity);
+                // System.out.println("new e ee: " + new_eccentricity);
 
                 R = (major / 2) * (new_eccentricity + 1);
                 T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
@@ -399,7 +389,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
                 semi_major_pow2 = (major / 2) * (major / 2);
                 semi_minor_pow2 = (minor / 2) * (minor / 2);
                 float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-               // System.out.println("new e : " + new_eccentricity);
+                // System.out.println("new e : " + new_eccentricity);
                 R = (major / 2) * (new_eccentricity + 1);
                 T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
                 period_label.setText("Period :" + df.format(T));
@@ -443,34 +433,28 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         }
         /**
-         * *******************************************************************
-         */
-        
-        if(e.getSource() == sleepDown_btn)
-        {
-            if(sleeptime_factor==5)
-            {
+         * ********************************************************************/
+
+        if (e.getSource() == sleepDown_btn) {
+            if (sleeptime_factor == 5) {
                 JOptionPane.showMessageDialog(null,
                         "You reached the minimal factor",
                         "Alert!!",
                         JOptionPane.ERROR_MESSAGE);
                 reset();
             }
-            sleeptime_factor-=5;
-            sleep_label.setText("     "+sleeptime_factor);
-            
-                
+            sleeptime_factor -= 5;
+            sleep_label.setText("     " + sleeptime_factor);
+
         }
-        
-        if(e.getSource() == sleepUp_btn)
-        {
-            sleeptime_factor+=5;
-            
-            
-            sleep_label.setText("     "+sleeptime_factor);
-            
+
+        if (e.getSource() == sleepUp_btn) {
+            sleeptime_factor += 5;
+
+            sleep_label.setText("     " + sleeptime_factor);
+
         }
-        
+
     }
 
     @Override
