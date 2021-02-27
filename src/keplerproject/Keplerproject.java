@@ -433,7 +433,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
                 repaint();
 
             } catch (InterruptedException ex) {
-                Logger.getLogger(Kepler_Project_Final.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Keplerproject.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
