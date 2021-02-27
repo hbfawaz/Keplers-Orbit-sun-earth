@@ -4,6 +4,7 @@ import java.applet.Applet;
 import java.awt.Button;
 import java.awt.Choice;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -15,6 +16,7 @@ import java.awt.TextField;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import static java.lang.Double.NaN;
 
 import static java.lang.Thread.sleep;
 import java.text.DecimalFormat;
@@ -23,383 +25,420 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Hassan Fawaz PC
+ * @author Hassan Fawaz
  */
 public class Keplerproject extends Applet implements Runnable, ActionListener {
 
-    int sleepTime;
-    Panel panel1, panel2;
-    Label ll1, ll2, ll3;
-    float e;
-    float vitesse;
-    float GMm;
-    float R;
-    float T;
+    /*Images used*/
+    Image title_img, bg_img, earth_img, sun_img, temperature_img, credits_img;
+
+    /*Buttons*/
+    Button start_quit_btn, pause_resume_btn, reset_btn;
+
+    Button maj_up_btn, maj_down_btn, min_up_btn, min_down_btn;
+
+    /*Labels */
+    Label maj_label, min_label;
+    Label earth_x_label, earth_y_label, sun_x_label, sun_y_label;
+    Label earth_sun_label, period_label, earth_speed_label;
+    Label empty_label1, empty_label2;
+    /*Panels*/
+    Panel p_left, p_center, p_right;
+
+    /*Font used*/
+    Font F;
+
+    /*Grid Layouts*/
+    GridLayout gr_left, gr_right, gr_center;
+
+    /*Flow Layout*/
+    FlowLayout flow_of_grids;
+
+    /*Format of float*/
+    DecimalFormat df;
+
+    /*Thread used*/
+    Thread th; // to manage the loop 
+
+    /*Variables used (int)*/
+    int sleeptime; // in the sleep methode
+    int handle_resume_pause_counter;
+    int major, minor; //(x,y)
+    int sunX, sunY;
+    int earthX, earthY;
+
+    /*variable to use (Float)*/
+    float e, speed, GMm, R, T, G;
     float sunMass, earthMass;
-    float G = (float) 1;
-    Label l1, l2, l3, l4, l5, l6, l7, l8,l9;
-    float previousX, previousY;
-    Thread th;
-    Font f;
-    Choice ch;
-    Button b, b1, reset_button;
-    TextField t1, t2, t3;
-
-    Label Semimaj, Semimin;
-    Button majUp, majDown, minUp, minDown;
-
+    float previousEarthX, previousEarthY;
     float distance;
-    Label l;
-    private Image image1, image2, bgImage, image3, image4, image5;
+    float infinitesimal_earth_earth_distance;
+    float theta;
+    float semi_major_pow2, semi_minor_pow2;
 
-    FlowLayout fl1;
-    FlowLayout fl2;
-DecimalFormat df;
-    int c = 0;
-
-    float pp;
-    
-
-    int x = 350, y = 200, coord_sunX, coord_sunY;
-    float coord_earthX = (200 + x), coord_earthY = (200 + y / 2);
-    ;
-    float theta = 0;
-
-    // Image earthpic;  
     public void init() {
-         df = new DecimalFormat("###.###");
-//           System.out.println(df.format(PI));
-
-        reset_button = new Button("Reset");
-        reset_button.addActionListener((ActionListener) this);
-
-        reset_button.setVisible(false);
-
-        Semimaj = new Label("     " + x);
-        Semimin = new Label("     " + y);
-        majUp = new Button(" + MAJ ");
-        majDown = new Button(" - MAJ ");
-        minUp = new Button(" + MIN ");
-        minDown = new Button(" - MIN ");
-
-        majUp.addActionListener((ActionListener) this);
-        majDown.addActionListener((ActionListener) this);
-        minUp.addActionListener((ActionListener) this);
-        minDown.addActionListener((ActionListener) this);
-
-        Panel panel_change = new Panel();
-        panel_change.setLayout(new GridLayout(2, 3));
-        panel_change.add(majDown);
-
-        panel_change.add(Semimaj);
-        panel_change.add(majUp);
-        panel_change.add(minDown);
-        panel_change.add(Semimin);
-        panel_change.add(minUp);
-
-        panel1 = new Panel();
-        panel2 = new Panel();
-
-        l1 = new Label("Earth's X:   " + coord_earthX);
-        l2 = new Label("Earth's Y:    " + coord_earthY);
-        l3 = new Label("Earth-sun");
-
-        l5 = new Label();
-        
-        l6 = new Label();
-        l7 = new Label("Period :");
-        l8 = new Label("Vitess d'earth : ");
-        l9 = new Label("");
-        
-        
-        panel1.add(l1);
-        panel1.add(l2);
-        panel1.add(l3);
-        panel1.add(l5);
-        panel1.add(l6);
-        panel1.add(l7);
-        panel1.add(l9);
-        panel1.add(l8);
-
-        panel1.setLayout(new GridLayout(3, 3));
-
-        bgImage = getImage(getDocumentBase(), "https://i.imgur.com/XUMkikp.jpg");
-
-        image1 = getImage(getDocumentBase(), "https://i.imgur.com/mQht2Su.jpg");
-        image2 = getImage(getDocumentBase(), "https://i.imgur.com/oKXanq1.png");
-        image3 = getImage(getDocumentBase(), "https://i.imgur.com/aGZHgpt.jpg");
-        image4 = getImage(getDocumentBase(), "https://text2image.com/user_images/202102/text2image_T2901371_20210225_210006.png");
-        image5 = getImage(getDocumentBase(), "https://text2image.com/user_images/202102/text2image_Z2884020_20210225_210701.png");
-
-        sunMass = 1000;
-        earthMass = 10;
-
-        GMm = G * (sunMass + earthMass);
-
-        float a2 = (x / 2) * (x / 2);
-        System.out.println("a2 : " + a2);
-        float b2 = (y / 2) * (y / 2);
-        System.out.println("b2 : " + b2);
-
-        e = (float) Math.sqrt(1 - (b2 / a2));
-        System.out.println("e :" + e);
-
-        R = (x / 2) * (e + 1);
-        System.out.println("R : " + R);
-        l3.setText("Earth-sun : " + (int) R);
-        System.out.println("GMm  :" + GMm);
-        T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-        l7.setText("Period :" + (int) T);
-
-        System.out.println("T : " + T);
-
-        vitesse = (float) Math.sqrt(GMm / R);
-        l8.setText("Vitess d'earth :" + df.format (vitesse));
-        System.out.println("Virtess: " + vitesse);
-
-        sleepTime = (int) T;
-
-        fl1 = new FlowLayout(FlowLayout.LEFT);
-
-        f = new Font("Serif", Font.BOLD, 36);
-
-        setLayout(fl1);
-
-        b = new Button("Start");
-        // add(b);
-        b1 = new Button("Pause");
-
-        Panel p2 = new Panel();
-        p2.setLayout(new GridLayout(1, 2));
-        p2.add(b);
-        p2.add(b1);
-        p2.add(reset_button);
-
-        add(p2);
-
-        add(panel_change);
-        add(panel1);
-
-        b1.setVisible(false);
-
-        b.addActionListener((ActionListener) this);
-        b1.addActionListener((ActionListener) this);
-        reset_button.addActionListener((ActionListener) this);
-
-    }
-
-    public void start() {
-        th = new Thread(this);
 
         this.setSize(800, 600);
+
+        handle_resume_pause_counter = 0;
+        theta = 0;
+        major = 350;
+        minor = 200;
+        earthX = 200 + major;
+        earthY = (200 + minor / 2);
+        sunX = 200 + ((minor * minor) / (2 * major));
+        sunY = (200 + minor / 2);
+        sunMass = 1000;
+        earthMass = 10;
+        G = 1;
+        GMm = G * (earthMass + sunMass);
+        semi_major_pow2 = (major / 2) * (major / 2);
+        semi_minor_pow2 = (minor / 2) * (minor / 2);
+        e = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+        R = (major / 2) * (e + 1); // Distance initial 
+        T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+        speed = (float) Math.sqrt(GMm / R);
+
+        df = new DecimalFormat("###.##");
+
+        bg_img = getImage(getDocumentBase(), "https://i.imgur.com/sluwuxP.jpg");
+        earth_img = getImage(getDocumentBase(), "https://i.imgur.com/mQht2Su.jpg");
+        sun_img = getImage(getDocumentBase(), "https://i.imgur.com/oKXanq1.png");
+        temperature_img = getImage(getDocumentBase(), "https://i.imgur.com/aGZHgpt.jpg");
+        credits_img = getImage(getDocumentBase(), "https://i.imgur.com/AlEPHbi.jpg");
+        title_img = getImage(getDocumentBase(), "https://text2image.com/user_images/202102/text2image_Z2884020_20210225_210701.png");
+
+        p_left = new Panel();
+        p_center = new Panel();
+        p_right = new Panel();
+
+        flow_of_grids = new FlowLayout();
+        gr_left = new GridLayout(1, 3);
+        gr_center = new GridLayout(2, 3);
+        gr_right = new GridLayout(3, 3);
+
+        p_left.setLayout(gr_left);
+        p_center.setLayout(gr_center);
+        p_right.setLayout(gr_right);
+
+        start_quit_btn = new Button("Start");
+        start_quit_btn.addActionListener((ActionListener) this);
+        pause_resume_btn = new Button("Pause");
+        pause_resume_btn.addActionListener((ActionListener) this);
+        pause_resume_btn.setVisible(false);
+        reset_btn = new Button("reset");
+        reset_btn.addActionListener((ActionListener) this);
+        reset_btn.setVisible(false);
+        maj_up_btn = new Button(" +major");
+        maj_up_btn.addActionListener((ActionListener) this);
+        maj_down_btn = new Button(" -major");
+        maj_down_btn.addActionListener((ActionListener) this);
+        min_up_btn = new Button(" +minor");
+        min_up_btn.addActionListener((ActionListener) this);
+        min_down_btn = new Button(" -minor");
+        min_down_btn.addActionListener((ActionListener) this);
+
+        empty_label1 = new Label("       ");
+        empty_label2 = new Label("       ");
+
+        maj_label = new Label("     " + major);
+        min_label = new Label("     " + minor);
+
+        earth_x_label = new Label("Earth's X:   " + earthX);
+        earth_y_label = new Label("Earth's Y:    " + earthY);
+        sun_x_label = new Label("Sun's X:   " + sunX);
+        sun_y_label = new Label("Sun's Y:   " + sunY);
+
+        earth_sun_label = new Label("Earth-sun: " + (int) R);
+        period_label = new Label("Period: " + T);
+        earth_speed_label = new Label("speed:" + df.format(speed));
+
+        p_left.add(start_quit_btn);
+        p_left.add(pause_resume_btn);
+        p_left.add(reset_btn);
+
+        p_center.add(maj_down_btn);
+        p_center.add(maj_label);
+        p_center.add(maj_up_btn);
+        p_center.add(min_down_btn);
+        p_center.add(min_label);
+        p_center.add(min_up_btn);
+
+        p_right.add(earth_x_label);
+        p_right.add(sun_x_label);
+        p_right.add(earth_sun_label);
+        p_right.add(earth_y_label);
+        p_right.add(sun_y_label);
+        p_right.add(period_label);
+        p_right.add(empty_label1);
+        p_right.add(empty_label2);
+        p_right.add(earth_speed_label);
+
+        setLayout(flow_of_grids);
+
+        add(p_left);
+        add(p_center);
+        add(p_right);
+
+        th = new Thread(this);
 
     }
 
     public void paint(Graphics g) {
-        g.drawImage(bgImage, 0, 0, this);
 
-//        g.drawImage(image1, (int) coord_earthX , (int) coord_earthY , this);
-//        g.drawImage(image2, coord_sunX - 25, coord_sunY - 25, this);
+        g.drawImage(bg_img, 0, 0, this);
+
         g.setColor(Color.WHITE);
-        g.drawOval(200, 200, x, y);
-        g.drawLine(200 + x / 2, 200, 200 + x / 2, 200 + y);
-        g.drawLine(200, 200 + y / 2, 200 + x, 200 + y / 2);
-        coord_sunX = 200 + ((y * y) / (2 * x));
-        coord_sunY = (200 + y / 2);
-        l5.setText("Sun's X:  " + coord_sunX);
-        l6.setText("Sun's Y:  " + coord_sunY);
+        g.drawOval(200, 200, major, minor);
+        g.drawLine(200 + major / 2, 200, 200 + major / 2, 200 + minor);
+        g.drawLine(200, 200 + minor / 2, 200 + major, 200 + minor / 2);
 
-        g.drawImage(image1, (int) coord_earthX - 15, (int) coord_earthY - 15, this);
-        g.drawImage(image2, coord_sunX - 25, coord_sunY - 25, this);
+        sunX = 200 + ((minor * minor) / (2 * major));
+        sunY = (200 + minor / 2);
 
-        g.drawImage(image3, 0, 500, this);
-        g.drawImage(image4, 660, 550, this);
-        g.drawImage(image5, 300, 70, this);
+        g.drawImage(earth_img, (int) earthX - 15, (int) earthY - 15, this);
+        g.drawImage(sun_img, sunX - 25, sunY - 25, this);
 
-        //  System.out.print("RRRRR"+ R);
+        g.drawImage(temperature_img, 0, 500, this);
+        g.drawImage(credits_img, 680, 537, this);
+        g.drawImage(title_img, 300, 70, this);
+
         if (distance > 23 && distance < 72.5) {
             g.setColor(Color.BLUE);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
         if (distance > 72.5 && distance < 122) {
             g.setColor(Color.cyan);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
         if (distance > 122 && distance < 171.5) {
             g.setColor(Color.white);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
         if (distance > 171.5 && distance < 221) {
             g.setColor(Color.yellow);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
         if (distance > 221 && distance < 270.5) {
             g.setColor(Color.orange);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
         if (distance > 270.5 && distance < 320) {
             g.setColor(Color.red);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
 
         if (distance > 318) {
-            System.out.println("distance b3idee: " + distance);
+            //System.out.println("distance b3idee: " + distance);
             g.setColor(Color.RED);
-            g.drawLine((int) coord_earthX, (int) coord_earthY, (int) coord_sunX, (int) coord_sunY);
+            g.drawLine((int) earthX, (int) earthY, (int) sunX, (int) sunY);
         }
 
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == b) {
 
-            if (b.getLabel().equals("Quit")) {
-                System.exit(0);
+        if (e.getSource() == start_quit_btn) {
+
+            if (start_quit_btn.getLabel().equals("Quit")) {
+                System.exit(0); //to quit the app
             } else {
                 th.start();
-                b1.setVisible(true);
-                b.setLabel("Quit");
-                reset_button.setVisible(true);
+                pause_resume_btn.setVisible(true);
+                start_quit_btn.setLabel("Quit");
+                reset_btn.setVisible(true);
             }
 
         }
 
-        if (e.getSource() == b1) {
+        if (e.getSource() == pause_resume_btn) {
 
-            b.setLabel("Quit");
-            if (c % 2 == 0) {
-                b1.setLabel("resume");
+            start_quit_btn.setLabel("Quit");
+            if (handle_resume_pause_counter % 2 == 0) {
+                pause_resume_btn.setLabel("resume");
                 th.suspend();
-                c++;
+                handle_resume_pause_counter++;
 
             } else {
-                b1.setLabel("pause");
+                pause_resume_btn.setLabel("pause");
                 th.resume();
-                c++;
+                handle_resume_pause_counter++;
 
             }
         }
-        if (e.getSource() == reset_button) {
-            x = 350;
-            y = 200;
-            Semimaj.setText("     " + x);
-            Semimin.setText("     " + y);
+        if (e.getSource() == reset_btn) {
 
-        }
+            if (maj_up_btn.isVisible() == false || maj_down_btn.isVisible() == false
+                    || min_up_btn.isVisible() == false || min_down_btn.isVisible() == false) {
+                maj_up_btn.setVisible(true);
+                maj_down_btn.setVisible(true);
+                min_up_btn.setVisible(true);
+                min_down_btn.setVisible(true);
 
-        if (e.getSource() == majUp) {
-            if (x == 150) {
-                majDown.setVisible(true);
             }
-            x = x + 5;
-            Semimaj.setText("     " + x);
 
-            float a2 = (x / 2) * (x / 2);
-            float b2 = (y / 2) * (y / 2);
-            float new_e = (float) Math.sqrt(1 - (b2 / a2));
-            R = (x / 2) * (new_e + 1);
+            major = 350;
+            minor = 200;
+            maj_label.setText("     " + major);
+            min_label.setText("     " + minor);
+
+            semi_major_pow2 = (major / 2) * (major / 2);
+            semi_minor_pow2 = (minor / 2) * (minor / 2);
+            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+            R = (major / 2) * (new_eccentricity + 1);
             T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            l7.setText("Period :" + (int) T);
+            period_label.setText("Period :" + df.format(T));
 
-            l5.setText("Sun's X:  " + coord_sunX);
-            l6.setText("Sun's Y:  " + coord_sunY);
+            sun_x_label.setText("Sun's X:  " + sunX);
+            sun_y_label.setText("Sun's Y:  " + sunY);
 
         }
+        if (e.getSource() == maj_up_btn) {
 
-        if (e.getSource() == majDown) {
-            if (x == 150) {
-                majDown.setVisible(false);
-            } else {
-                x = x - 5;
-                Semimaj.setText("     " + x);
-                float a2 = (x / 2) * (x / 2);
-                float b2 = (y / 2) * (y / 2);
-                float new_e = (float) Math.sqrt(1 - (b2 / a2));
-                R = (x / 2) * (new_e + 1);
-                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-                l7.setText("Period :" + (int) T);
-                l5.setText("Sun's X:  " + coord_sunX);
-                l6.setText("Sun's Y:  " + coord_sunY);
+            if (maj_down_btn.isVisible() == false) {
+                maj_down_btn.setVisible(true);
+            }
+            if (major > 595) {
+                maj_up_btn.setVisible(false);
+            }
 
+            major = major + 5;
+
+            maj_label.setText("     " + major);
+
+            semi_major_pow2 = (major / 2) * (major / 2);
+            semi_minor_pow2 = (minor / 2) * (minor / 2);
+            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+            System.out.println("new e : " + new_eccentricity);
+
+            if (new_eccentricity == 1) {
+                maj_up_btn.setVisible(false);
             }
-        }
-        if (e.getSource() == minUp) {
-            if (y == 0) {
-                minDown.setVisible(true);
-            }
-            y = y + 5;
-            Semimin.setText("     " + y);
-            float a2 = (x / 2) * (x / 2);
-            float b2 = (y / 2) * (y / 2);
-            float new_e = (float) Math.sqrt(1 - (b2 / a2));
-            R = (x / 2) * (new_e + 1);
+
+            R = (major / 2) * (new_eccentricity + 1);
             T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            l7.setText("Period :" + (int) T);
-            l5.setText("Sun's X:  " + coord_sunX);
-            l6.setText("Sun's Y:  " + coord_sunY);
+            period_label.setText("Period :" + df.format(T));
+
+            sun_x_label.setText("Sun's X:  " + sunX);
+            sun_y_label.setText("Sun's Y:  " + sunY);
 
         }
-        if (e.getSource() == minDown) {
-            if (y == 0) {
-                minDown.setVisible(false);
-            } else {
-                y = y - 5;
-                Semimin.setText("     " + y);
-                float a2 = (x / 2) * (x / 2);
-                float b2 = (y / 2) * (y / 2);
-                float new_e = (float) Math.sqrt(1 - (b2 / a2));
-                R = (x / 2) * (new_e + 1);
-                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-                l7.setText("Period :" + (int) T);
-                l5.setText("Sun's X:  " + coord_sunX);
-                l6.setText("Sun's Y:  " + coord_sunY);
 
+        if (e.getSource() == maj_down_btn) {
+
+            if (maj_up_btn.isVisible() == false) {
+                maj_up_btn.setVisible(true);
             }
+
+            major = major - 5;
+            maj_label.setText("     " + major);
+            semi_major_pow2 = (major / 2) * (major / 2);
+            semi_minor_pow2 = (minor / 2) * (minor / 2);
+            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+            System.out.println("new e ee: " + new_eccentricity);
+
+            if (new_eccentricity == 0) {
+                maj_down_btn.setVisible(false);
+            }
+            R = (major / 2) * (new_eccentricity + 1);
+            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+            period_label.setText("Period :" + df.format(T));
+            sun_x_label.setText("Sun's X:  " + sunX);
+            sun_y_label.setText("Sun's Y:  " + sunY);
+
+        }
+        if (e.getSource() == min_up_btn) {
+            if (min_down_btn.isVisible() == false) {
+                min_down_btn.setVisible(true);
+            }
+
+            if (minor == 5) {
+                min_down_btn.setVisible(true);
+            }
+
+            minor = minor + 5;
+            min_label.setText("     " + minor);
+            semi_major_pow2 = (major / 2) * (major / 2);
+            semi_minor_pow2 = (minor / 2) * (minor / 2);
+            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+            System.out.println("new e : " + new_eccentricity);
+            if (new_eccentricity == 0 || new_eccentricity == 1) {
+                min_up_btn.setVisible(false);
+            }
+            R = (major / 2) * (new_eccentricity + 1);
+            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+            period_label.setText("Period :" + df.format(T));
+            sun_x_label.setText("Sun's X:  " + sunX);
+            sun_y_label.setText("Sun's Y:  " + sunY);
+
+        }
+
+        if (e.getSource() == min_down_btn) {
+            if (min_up_btn.isVisible() == false) {
+                min_up_btn.setVisible(true);
+            }
+
+            if (minor == 5) {
+                min_down_btn.setVisible(false);
+            } else {
+                minor = minor - 5;
+                min_label.setText("     " + minor);
+                semi_major_pow2 = (major / 2) * (major / 2);
+                semi_minor_pow2 = (minor / 2) * (minor / 2);
+                float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+
+                if (new_eccentricity == 0 || new_eccentricity == 1) {
+                    min_down_btn.setVisible(false);
+                }
+                System.out.println("new e : " + new_eccentricity);
+
+                R = (major / 2) * (new_eccentricity + 1);
+                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+                period_label.setText("Period :" + df.format(T));
+                sun_x_label.setText("Sun's X:  " + sunX);
+                sun_y_label.setText("Sun's Y:  " + sunY);
+            }
+
         }
 
     }
 
     @Override
     public void run() {
-
         while (true) {
             try {
 
-                previousX = coord_earthX;
-                previousY = coord_earthY;
+                previousEarthX = earthX;
+                previousEarthY = earthY;
 
                 theta = (float) (theta + 0.0751);
-                coord_earthX = (float) (((x / 2) * Math.cos(theta)) + (200 + x / 2));
-                coord_earthY = (float) (((y / 2) * Math.sin(theta)) + (200 + y / 2));
-                distance = (float) Math.sqrt((coord_earthX - (coord_sunX - 25)) * (coord_earthX - (coord_sunX - 25)) + (coord_earthY - (coord_sunY - 25)) * (coord_earthY - (coord_sunY - 25)));
-                System.out.println("distance : " + distance);
 
-                l1.setText("Earth's X: " + (int) coord_earthX + "  ");
+                earthX = (int) (float) (((major / 2) * Math.cos(theta)) + (200 + major / 2));
+                earthY = (int) (float) (((minor / 2) * Math.sin(theta)) + (200 + minor / 2));
+                distance = (float) Math.sqrt((earthX - (sunX - 25)) * (earthX - (sunX - 25)) + (earthY - (sunY - 25)) * (earthY - (sunY - 25)));
 
-                l2.setText("Earth's Y: " + (int) coord_earthY + "  ");
-                l3.setText("Earth-sun: " + (int) distance);
+                earth_x_label.setText("Earth's X: " + (int) earthX + "  ");
+                earth_y_label.setText("Earth's Y: " + (int) earthY + "  ");
+                earth_sun_label.setText("Earth-sun: " + (int) distance);
 
-                pp = (float) Math.sqrt(((coord_earthX - previousX) * (coord_earthX - previousX)) + ((coord_earthY - previousY) * (coord_earthY - previousY)));
-                vitesse = (float) Math.sqrt(GMm / distance);
-                l8.setText("Earth speed:" + df.format (vitesse));
+                infinitesimal_earth_earth_distance = (float) Math.sqrt(((earthX - previousEarthX) * (earthX - previousEarthX)) + ((earthY - previousEarthY) * (earthY - previousEarthY)));
+                speed = (float) Math.sqrt(GMm / distance);
+                earth_speed_label.setText("Earth speed:" + df.format(speed));
 
-                sleepTime = (int) (pp / vitesse) * 80; // from s->ms
-                // System.out.println("SleepTime : " + sleepTime);
-                sleep(sleepTime);
+                /*Le zebde*/
+                sleeptime = (int) (infinitesimal_earth_earth_distance / speed) * 50; // for better results
+                sleep(sleeptime);
 
                 repaint();
 
             } catch (InterruptedException ex) {
-                Logger.getLogger(Keplerproject.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Kepler_Project_Final.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
-
-    }
-
-    private void setBackground(Image image3) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
+
+
