@@ -134,7 +134,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         pause_resume_btn = new Button("Pause");
         pause_resume_btn.addActionListener((ActionListener) this);
         pause_resume_btn.setVisible(false);
-        reset_btn = new Button("reset");
+        reset_btn = new Button("Reset");
         reset_btn.addActionListener((ActionListener) this);
         reset_btn.setVisible(false);
         maj_up_btn = new Button(" +major");
@@ -282,7 +282,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         
         sleeptime_factor=50;
         
-            sleep_label.setText("    "+sleeptime_factor);
+            sleep_label.setText("     "+sleeptime_factor);
             
     }
 
@@ -457,7 +457,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
                 reset();
             }
             sleeptime_factor-=5;
-            sleep_label.setText("    "+sleeptime_factor);
+            sleep_label.setText("     "+sleeptime_factor);
             
                 
         }
@@ -467,7 +467,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
             sleeptime_factor+=5;
             
             
-            sleep_label.setText("    "+sleeptime_factor);
+            sleep_label.setText("     "+sleeptime_factor);
             
         }
         
