@@ -37,8 +37,10 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
     Button start_quit_btn, pause_resume_btn, reset_btn;
 
     Button maj_up_btn, maj_down_btn, min_up_btn, min_down_btn;
+    Button sleepUp_btn , sleepDown_btn;
 
     /*Labels */
+    Label sleep_label;
     Label maj_label, min_label;
     Label earth_x_label, earth_y_label, sun_x_label, sun_y_label;
     Label earth_sun_label, period_label, earth_speed_label;
@@ -63,6 +65,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
     /*Variables used (int)*/
     int sleeptime; // in the sleep methode
+    int sleeptime_factor;
     int handle_resume_pause_counter;
     int major, minor; //(x,y)
     int centerX, centerY;
@@ -86,6 +89,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         handle_resume_pause_counter = 0;
         theta = 0;
+        sleeptime_factor=50;
         major = 350;
         minor = 200;
         earthX = 200 + major;
@@ -117,8 +121,8 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         p_right = new Panel();
 
         flow_of_grids = new FlowLayout();
-        gr_left = new GridLayout(1, 3);
-        gr_center = new GridLayout(2, 3);
+        gr_left = new GridLayout(3,1);
+        gr_center = new GridLayout(3, 3);
         gr_right = new GridLayout(3, 3);
 
         p_left.setLayout(gr_left);
@@ -141,6 +145,13 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         min_up_btn.addActionListener((ActionListener) this);
         min_down_btn = new Button(" -minor");
         min_down_btn.addActionListener((ActionListener) this);
+        sleepUp_btn = new Button(" +sleep");
+        sleepUp_btn.addActionListener((ActionListener) this);
+        sleepDown_btn = new Button(" -sleep");
+        sleepDown_btn.addActionListener((ActionListener) this);
+        
+                
+        sleep_label = new Label("     "+ sleeptime_factor);
 
         empty_label1 = new Label("       ");
         empty_label2 = new Label("       ");
@@ -167,6 +178,10 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         p_center.add(min_down_btn);
         p_center.add(min_label);
         p_center.add(min_up_btn);
+        p_center.add(sleepDown_btn);
+        p_center.add(sleep_label);
+        p_center.add(sleepUp_btn);
+        
 
         p_right.add(earth_x_label);
         p_right.add(sun_x_label);
@@ -188,7 +203,6 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
     }
 
-    /* Graphics */
     public void paint(Graphics g) {
 
         g.drawImage(bg_img, 0, 0, this);
@@ -248,7 +262,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         }
 
     }
-     /* Reset */
+
     public void reset() {
         major = 350;
         minor = 200;
@@ -265,6 +279,11 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         sunY = (200 + minor / 2);
         sun_x_label.setText("Sun's X:  " + sunX);
         sun_y_label.setText("Sun's Y:  " + sunY);
+        
+        sleeptime_factor=50;
+        
+            sleep_label.setText("    "+sleeptime_factor);
+            
     }
 
     @Override
@@ -426,6 +445,32 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         /**
          * *******************************************************************
          */
+        
+        if(e.getSource() == sleepDown_btn)
+        {
+            if(sleeptime_factor==5)
+            {
+                JOptionPane.showMessageDialog(null,
+                        "You reached the minimal factor",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
+            }
+            sleeptime_factor-=5;
+            sleep_label.setText("    "+sleeptime_factor);
+            
+                
+        }
+        
+        if(e.getSource() == sleepUp_btn)
+        {
+            sleeptime_factor+=5;
+            
+            
+            sleep_label.setText("    "+sleeptime_factor);
+            
+        }
+        
     }
 
     @Override
@@ -451,7 +496,7 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
                 earth_speed_label.setText("Earth speed:" + df.format(speed));
 
                 /*Le zebde*/
-                sleeptime = (int) (infinitesimal_earth_earth_distance / speed) * 50; // for better results
+                sleeptime = (int) (infinitesimal_earth_earth_distance / speed) * sleeptime_factor; // for better results
                 sleep(sleeptime);
 
                 repaint();
@@ -464,5 +509,3 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
     }
 
 }
-
-
