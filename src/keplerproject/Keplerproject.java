@@ -22,6 +22,7 @@ import static java.lang.Thread.sleep;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -64,6 +65,9 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
     int sleeptime; // in the sleep methode
     int handle_resume_pause_counter;
     int major, minor; //(x,y)
+    int centerX, centerY;
+    int Ax, Ay;
+    int Bx, By;
     int sunX, sunY;
     int earthX, earthY;
 
@@ -190,8 +194,16 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
         g.setColor(Color.WHITE);
         g.drawOval(200, 200, major, minor);
+        Ax = 200;
+        Ay = 200 + (minor / 2);
+        Bx = 200 + major;
+        By = 200 + (minor / 2);
         g.drawLine(200 + major / 2, 200, 200 + major / 2, 200 + minor);
-        g.drawLine(200, 200 + minor / 2, 200 + major, 200 + minor / 2);
+        g.drawLine(Ax, Ay, Bx, By);
+
+        centerX = (Ax + Bx) / 2;
+        centerY = (Ay + By) / 2;
+       // System.out.println("center (" + centerX + "," + centerY + ")");
 
         sunX = 200 + ((minor * minor) / (2 * major));
         sunY = (200 + minor / 2);
@@ -236,6 +248,24 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
 
     }
 
+    public void reset() {
+        major = 350;
+        minor = 200;
+        maj_label.setText("     " + major);
+        min_label.setText("     " + minor);
+
+        semi_major_pow2 = (major / 2) * (major / 2);
+        semi_minor_pow2 = (minor / 2) * (minor / 2);
+        float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+        R = (major / 2) * (new_eccentricity + 1);
+        T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+        period_label.setText("Period :" + df.format(T));
+        sunX = 200 + ((minor * minor) / (2 * major));
+        sunY = (200 + minor / 2);
+        sun_x_label.setText("Sun's X:  " + sunX);
+        sun_y_label.setText("Sun's Y:  " + sunY);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -269,129 +299,60 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
         }
         if (e.getSource() == reset_btn) {
 
-            if (maj_up_btn.isVisible() == false || maj_down_btn.isVisible() == false
-                    || min_up_btn.isVisible() == false || min_down_btn.isVisible() == false) {
-                maj_up_btn.setVisible(true);
-                maj_down_btn.setVisible(true);
-                min_up_btn.setVisible(true);
-                min_down_btn.setVisible(true);
-
-            }
-
-            major = 350;
-            minor = 200;
-            maj_label.setText("     " + major);
-            min_label.setText("     " + minor);
-
-            semi_major_pow2 = (major / 2) * (major / 2);
-            semi_minor_pow2 = (minor / 2) * (minor / 2);
-            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-            R = (major / 2) * (new_eccentricity + 1);
-            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            period_label.setText("Period :" + df.format(T));
-
-            sun_x_label.setText("Sun's X:  " + sunX);
-            sun_y_label.setText("Sun's Y:  " + sunY);
+            reset();
 
         }
+
+        /**
+         * *************Buttons actions with their cases***************
+         */
         if (e.getSource() == maj_up_btn) {
 
-            if (maj_down_btn.isVisible() == false) {
-                maj_down_btn.setVisible(true);
+            if (sunX < Ax || sunX > centerX) {
+
+                JOptionPane.showMessageDialog(null,
+                        "eccentricity can't be 0 or 1",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
+
+            } else {
+
+                major = major + 5;
+
+                maj_label.setText("     " + major);
+
+                semi_major_pow2 = (major / 2) * (major / 2);
+                semi_minor_pow2 = (minor / 2) * (minor / 2);
+                float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+                //System.out.println("new e : " + new_eccentricity);
+
+                R = (major / 2) * (new_eccentricity + 1);
+                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+                period_label.setText("Period :" + df.format(T));
+
+                sun_x_label.setText("Sun's X:  " + sunX);
+                sun_y_label.setText("Sun's Y:  " + sunY);
             }
-            if (major > 595) {
-                maj_up_btn.setVisible(false);
-            }
-
-            major = major + 5;
-
-            maj_label.setText("     " + major);
-
-            semi_major_pow2 = (major / 2) * (major / 2);
-            semi_minor_pow2 = (minor / 2) * (minor / 2);
-            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-            System.out.println("new e : " + new_eccentricity);
-
-            if (new_eccentricity == 1) {
-                maj_up_btn.setVisible(false);
-            }
-
-            R = (major / 2) * (new_eccentricity + 1);
-            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            period_label.setText("Period :" + df.format(T));
-
-            sun_x_label.setText("Sun's X:  " + sunX);
-            sun_y_label.setText("Sun's Y:  " + sunY);
 
         }
 
         if (e.getSource() == maj_down_btn) {
 
-            if (maj_up_btn.isVisible() == false) {
-                maj_up_btn.setVisible(true);
-            }
+            if (sunX < Ax || sunX > centerX) {
+                JOptionPane.showMessageDialog(null,
+                        "eccentricity can't be 0 or 1",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
 
-            major = major - 5;
-            maj_label.setText("     " + major);
-            semi_major_pow2 = (major / 2) * (major / 2);
-            semi_minor_pow2 = (minor / 2) * (minor / 2);
-            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-            System.out.println("new e ee: " + new_eccentricity);
-
-            if (new_eccentricity == 0) {
-                maj_down_btn.setVisible(false);
-            }
-            R = (major / 2) * (new_eccentricity + 1);
-            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            period_label.setText("Period :" + df.format(T));
-            sun_x_label.setText("Sun's X:  " + sunX);
-            sun_y_label.setText("Sun's Y:  " + sunY);
-
-        }
-        if (e.getSource() == min_up_btn) {
-            if (min_down_btn.isVisible() == false) {
-                min_down_btn.setVisible(true);
-            }
-
-            if (minor == 5) {
-                min_down_btn.setVisible(true);
-            }
-
-            minor = minor + 5;
-            min_label.setText("     " + minor);
-            semi_major_pow2 = (major / 2) * (major / 2);
-            semi_minor_pow2 = (minor / 2) * (minor / 2);
-            float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-            System.out.println("new e : " + new_eccentricity);
-            if (new_eccentricity == 0 || new_eccentricity == 1) {
-                min_up_btn.setVisible(false);
-            }
-            R = (major / 2) * (new_eccentricity + 1);
-            T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
-            period_label.setText("Period :" + df.format(T));
-            sun_x_label.setText("Sun's X:  " + sunX);
-            sun_y_label.setText("Sun's Y:  " + sunY);
-
-        }
-
-        if (e.getSource() == min_down_btn) {
-            if (min_up_btn.isVisible() == false) {
-                min_up_btn.setVisible(true);
-            }
-
-            if (minor == 5) {
-                min_down_btn.setVisible(false);
             } else {
-                minor = minor - 5;
-                min_label.setText("     " + minor);
+                major = major - 5;
+                maj_label.setText("     " + major);
                 semi_major_pow2 = (major / 2) * (major / 2);
                 semi_minor_pow2 = (minor / 2) * (minor / 2);
                 float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
-
-                if (new_eccentricity == 0 || new_eccentricity == 1) {
-                    min_down_btn.setVisible(false);
-                }
-                System.out.println("new e : " + new_eccentricity);
+               // System.out.println("new e ee: " + new_eccentricity);
 
                 R = (major / 2) * (new_eccentricity + 1);
                 T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
@@ -401,7 +362,69 @@ public class Keplerproject extends Applet implements Runnable, ActionListener {
             }
 
         }
+        if (e.getSource() == min_up_btn) {
 
+            if (sunX < Ax || sunX > centerX) {
+
+                JOptionPane.showMessageDialog(null,
+                        "eccentricity can't be 0 or 1",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
+
+            } else {
+
+                minor = minor + 5;
+                min_label.setText("     " + minor);
+                semi_major_pow2 = (major / 2) * (major / 2);
+                semi_minor_pow2 = (minor / 2) * (minor / 2);
+                float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+               // System.out.println("new e : " + new_eccentricity);
+                R = (major / 2) * (new_eccentricity + 1);
+                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+                period_label.setText("Period :" + df.format(T));
+                sun_x_label.setText("Sun's X:  " + sunX);
+                sun_y_label.setText("Sun's Y:  " + sunY);
+            }
+
+        }
+
+        if (e.getSource() == min_down_btn) {
+
+            if (minor == 0) {
+                JOptionPane.showMessageDialog(null,
+                        "Out of bounds",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
+            } else if (sunX < Ax || sunX > centerX) {
+
+                JOptionPane.showMessageDialog(null,
+                        "eccentricity can't be 0 or 1",
+                        "Alert!!",
+                        JOptionPane.ERROR_MESSAGE);
+                reset();
+
+            } else {
+
+                minor = minor - 5;
+                min_label.setText("     " + minor);
+                semi_major_pow2 = (major / 2) * (major / 2);
+                semi_minor_pow2 = (minor / 2) * (minor / 2);
+                float new_eccentricity = (float) Math.sqrt(1 - (semi_minor_pow2 / semi_major_pow2));
+//                System.out.println("new e : " + new_eccentricity);
+
+                R = (major / 2) * (new_eccentricity + 1);
+                T = (float) ((2 * Math.PI) * Math.sqrt((R * R * R) / GMm));
+                period_label.setText("Period :" + df.format(T));
+                sun_x_label.setText("Sun's X:  " + sunX);
+                sun_y_label.setText("Sun's Y:  " + sunY);
+            }
+
+        }
+        /**
+         * *******************************************************************
+         */
     }
 
     @Override
